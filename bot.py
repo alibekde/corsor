@@ -118,6 +118,11 @@ async def prompt_class_choice(update: Update, text: str | None = None):
 def get_schedule_for_day(class_name: str, day: str):
     return SCHEDULE.get(class_name, {}).get(day, ["Bu kun uchun jadval topilmadi."])
 
+def format_lessons(lessons):
+    if not lessons:
+        return ["Bu kun uchun jadval topilmadi."]
+    return [f"{idx + 1}. {lesson}" for idx, lesson in enumerate(lessons)]
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_class = context.user_data.get("class")
     if not user_class:
@@ -154,16 +159,16 @@ async def tugma_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if past_matn == "bugungi":
         kun = kun_nomini_aniqla(0)
-        darslar = get_schedule_for_day(user_class, kun)
+        darslar = format_lessons(get_schedule_for_day(user_class, kun))
         javob = f"{user_class} sinfi uchun bugungi darslar ({kun}):\n" + "\n".join(darslar)
     elif past_matn == "ertangi":
         kun = kun_nomini_aniqla(1)
-        darslar = get_schedule_for_day(user_class, kun)
+        darslar = format_lessons(get_schedule_for_day(user_class, kun))
         javob = f"{user_class} sinfi uchun ertangi darslar ({kun}):\n" + "\n".join(darslar)
     elif past_matn == "haftalik":
         javob = f"{user_class} sinfi uchun haftalik jadval:"
         for kun_nomi in WEEK_DAYS:
-            darslar = get_schedule_for_day(user_class, kun_nomi)
+            darslar = format_lessons(get_schedule_for_day(user_class, kun_nomi))
             javob += f"\n\n{kun_nomi}:\n" + "\n".join(darslar)
     else:
         javob = "Iltimos, tugmalardan birini tanlang!"
